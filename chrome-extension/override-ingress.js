@@ -9,7 +9,7 @@ xd = function(a, b) {
   var parser = new DOMParser();
   var node = document.createElement('div');
   node.innerHTML = res;
-  
+
   // TODO: Do this cleaner.
   var elements = node.getElementsByTagName('div');
   for (var i = 0, div; div = elements[i]; i++) {
@@ -20,17 +20,17 @@ xd = function(a, b) {
       watchLink.textContent = 'Subscribe';
       watchLink.style.color = '#11ECF7';
       watchDiv.appendChild(watchLink);
-      
+
       var space = document.createElement('span')
       space.textContent = ' | ';
       watchDiv.appendChild(space);
-      
+
       var unwatchLink = document.createElement('a');
       unwatchLink.href = "javascript:NOTIFY_watch('" + [a.j.title, a.j.Gb * 1E6, a.j.Hb * 1E6].join("','") + "', false);";
       unwatchLink.textContent = 'Unsubscribe';
       unwatchLink.style.color = '#11ECF7';
       watchDiv.appendChild(unwatchLink);
-      div.appendChild(watchDiv);    
+      div.appendChild(watchDiv);
       break;
     }
   }
