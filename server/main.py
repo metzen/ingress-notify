@@ -1,8 +1,9 @@
 import json
 import logging
 
-from google.appengine.api import users
+from google.appengine.api import memcache
 from google.appengine.api import oauth
+from google.appengine.api import users
 from google.appengine.api import xmpp
 import webapp2
 
@@ -43,14 +44,18 @@ class PortalsHandler(BaseHandler):
   """Handler for the portals collection resource."""
 
   def get(self):
-    portals = []
-    for p in models.Portal.all():
-      portals.append({
-          'name': p.name, 'latE6': p.latE6, 'lngE6': p.lngE6,
-          'watched': self.user.key() in p.subscribers,
-          })
+    portals = memcache.get('portals') or []
+    if not portals:
+      logging.info('Pulling portals from datastore')
+      for p in models.Portal.all():
+        portals.append({
+            'name': p.name, 'latE6': p.latE6, 'lngE6': p.lngE6,
+            'watched': self.user.key() in p.subscribers,
+            })
+      portals = json.dumps(portals)
+      memcache.set('portals', portals)
     self.response.headers['Content-Type'] = 'application/json'
-    self.response.out.write(")]}',\n" + json.dumps(portals))
+    self.response.out.write(")]}',\n" + portals)
 
 
 class PortalHandler(BaseHandler):

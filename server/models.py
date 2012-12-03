@@ -1,3 +1,4 @@
+from google.appengine.api import memcache
 from google.appengine.ext import db
 
 
@@ -14,6 +15,10 @@ class Portal(db.Model):
   subscribers = db.ListProperty(db.Key)  # User keys.
   added_by = db.ReferenceProperty(User)
   added_on = db.DateTimeProperty(auto_now_add=True)
+
+  def put(self, *args, **kwargs):
+    super(Portal, self).put(*args, **kwargs)
+    memcache.delete('portals')
 
   @classmethod
   def get_by_lat_lng(cls, lat, lng):
