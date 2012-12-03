@@ -1,0 +1,22 @@
+{
+  "name": "ingress-notify",
+  "version": "1.0",
+  "manifest_version": 2,
+  "description": "Extended notification functionality for the Ingress dashboard map.",
+  "browser_action": {
+    "default_icon": "icon.png",
+	  "default_popup": "popup.html"
+  },
+  "permissions": [
+    "https://ingress-notify.appspot.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["http://www.ingress.com/intel*"],
+      "js": ["ingress-override-bootstrap.js", "jquery.min.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    "override-ingress.js"
+  ]
+}

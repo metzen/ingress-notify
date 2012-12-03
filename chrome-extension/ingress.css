@@ -1,0 +1,35 @@
+body {
+  font-family: "Arial","Helvetica",sans-serif;
+  font-size: 13px;
+  background-color: black;
+  color: #DDD;
+  min-width: 250px;
+}
+h1 {
+  font-size: 167%;
+  font-weight: normal;
+  border-bottom: 1px solid #444;
+  color: #11ECF7;
+  margin: 0;
+  padding: 0;
+}
+a {
+  color: #11ECF7;
+  text-decoration: none;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+li {
+  border-bottom: 1px solid #333;
+  padding: 0.3em;
+}
+.trash {
+  opacity: .55;
+  position: relative;
+  top: -3px;
+}
+.trash:hover {
+  opacity: .72;
+}

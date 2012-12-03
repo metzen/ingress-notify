@@ -1,0 +1,21 @@
+<html ng-app ng-csp>
+<head>
+<script src="/angular.min.js"></script>
+<script src="/ingress.js"></script>
+<link href="/ingress.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<h1>Watched portals</h1>
+<div ng-controller="PortalsCtrl">
+  <ul>
+    <li ng-repeat="portal in portals | filter:{'watched': true } | orderBy:'name'">
+      {{ portal.name }}
+      <a style="float: right;" ng-click="unwatch(portal);" title="Unwatch">
+        <!--<img class="trash" src="https://ssl.gstatic.com/docs/doclist/images/trash_button_icon_3.png">-->
+        x
+      </a>
+    </li>
+  </ul>
+</div>
+</body>
+</html>
