@@ -59,7 +59,6 @@ class PortalHandler(BaseHandler):
   def __init__(self, request, response):
     super(PortalHandler, self).__init__(request, response)
     args = self.request.route_args
-    import pdb; pdb.set_trace()
     self.portal = models.Portal.get_or_insert(
         int(args[0]), int(args[1]), args[2], self.user)
 
