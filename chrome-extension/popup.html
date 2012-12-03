@@ -8,6 +8,7 @@
 <h1>Watched portals</h1>
 <div ng-controller="PortalsCtrl">
   <ul>
+    <span ng-show="portals == null">Loading...</span>
     <li ng-repeat="portal in portals | filter:{'watched': true } | orderBy:'name'">
       {{ portal.name }}
       <a style="float: right;" ng-click="unwatch(portal);" title="Unwatch">

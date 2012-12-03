@@ -13,6 +13,7 @@ window.addEventListener("message", function(event) {
     return;
   //port.postMessage(event.data);
   var portal = event.data;
+  // TODO: Send with OAuth token.
   $.ajax({
     url: 'https://ingress-notify.appspot.com/portals/' + portal.latE6 + ',' + portal.lngE6 + '-' + portal.title + '/watch',
     type: portal.watched ? 'PUT' : 'DELETE'

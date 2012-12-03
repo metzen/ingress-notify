@@ -8,6 +8,7 @@
 	  "default_popup": "popup.html"
   },
   "permissions": [
+    "tabs",
     "https://ingress-notify.appspot.com/*"
   ],
   "content_scripts": [
@@ -18,5 +19,13 @@
   ],
   "web_accessible_resources": [
     "override-ingress.js"
-  ]
+  ],
+  "background": {
+    "scripts": [
+        "chrome_ex_oauthsimple.js",
+        "chrome_ex_oauth.js",
+        "background.js"
+    ],
+    "persistent": false
+  }
 }
