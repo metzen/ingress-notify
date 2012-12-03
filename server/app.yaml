@@ -1,0 +1,31 @@
+application: ingress-notify
+version: 1
+api_version: 1
+runtime: python27
+threadsafe: yes
+
+inbound_services:
+- mail
+- xmpp_message
+
+handlers:
+- url: /_ah/mail/.+
+  script: mail.app
+
+- url: /_ah/admin.*
+  script: google.appengine.ext.admin.application
+  secure: always
+
+- url: /
+  static_files: index.html
+  upload: index.html
+  secure: always
+  login: required
+
+- url: /static
+  static_dir: static
+  secure: always
+
+- url: /.*
+  script: main.app
+  secure: always
