@@ -18,7 +18,7 @@ xd = function(a, b) {
     if (div.id == 'portal_metadata') {
       var watchDiv = document.createElement('div');
       var watchLink = document.createElement('a');
-      watchLink.href = "javascript:NOTIFY_watch('" + a.j.title + "', " + (a.j.Gb * 1E6) + ", " + (a.j.Hb * 1E6) + ", true);";
+      watchLink.href = 'javascript:NOTIFY_watch(' + [JSON.stringify(a.j.title), a.j.Gb * 1E6, a.j.Hb * 1E6, true].join(', ') + ');';
       watchLink.textContent = 'Subscribe';
       watchLink.style.color = '#11ECF7';
       watchDiv.appendChild(watchLink);
@@ -28,7 +28,7 @@ xd = function(a, b) {
       watchDiv.appendChild(space);
 
       var unwatchLink = document.createElement('a');
-      unwatchLink.href = "javascript:NOTIFY_watch('" + a.j.title + "', " + (a.j.Gb * 1E6) + ", " + (a.j.Hb * 1E6) + ", false);";
+      unwatchLink.href = 'javascript:NOTIFY_watch(' + [JSON.stringify(a.j.title), a.j.Gb * 1E6, a.j.Hb * 1E6, false].join(', ') + ');';
       unwatchLink.textContent = 'Unsubscribe';
       unwatchLink.style.color = '#11ECF7';
       watchDiv.appendChild(unwatchLink);
