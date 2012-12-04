@@ -1,16 +1,16 @@
 function NOTIFY_watch(title, latE6, lngE6, watched) {
-  window.postMessage({'title': title, 'latE6': latE6, 'lngE6': lngE6,
-                      'watched': watched},
-                     '*');
+  document.getElementById('map_spinner').style.display = 'inherit';
+  window.postMessage({
+      'type': 'WATCH_REQUEST', 'portal': {
+          'title': title, 'latE6': latE6, 'lngE6': lngE6, 'watched': watched},
+      }, '*');
 }
 
 
 var ORIG_xd = xd;
 xd = function(a, b) {
-  var res = ORIG_xd(a, b);
-  var parser = new DOMParser();
   var node = document.createElement('div');
-  node.innerHTML = res;
+  node.innerHTML = ORIG_xd(a, b);
 
   // TODO: Do this cleaner.
   var elements = node.getElementsByTagName('div');
@@ -19,7 +19,7 @@ xd = function(a, b) {
       var watchDiv = document.createElement('div');
       var watchLink = document.createElement('a');
       watchLink.href = 'javascript:NOTIFY_watch(' + [JSON.stringify(a.j.title), a.j.Gb * 1E6, a.j.Hb * 1E6, true].join(', ') + ');';
-      watchLink.textContent = 'Subscribe';
+      watchLink.textContent = 'Watch';
       watchLink.style.color = '#11ECF7';
       watchDiv.appendChild(watchLink);
 
@@ -29,7 +29,7 @@ xd = function(a, b) {
 
       var unwatchLink = document.createElement('a');
       unwatchLink.href = 'javascript:NOTIFY_watch(' + [JSON.stringify(a.j.title), a.j.Gb * 1E6, a.j.Hb * 1E6, false].join(', ') + ');';
-      unwatchLink.textContent = 'Unsubscribe';
+      unwatchLink.textContent = 'Unwatch';
       unwatchLink.style.color = '#11ECF7';
       watchDiv.appendChild(unwatchLink);
       div.appendChild(watchDiv);
@@ -38,3 +38,13 @@ xd = function(a, b) {
   }
   return node.innerHTML;
 };
+
+window.addEventListener("message", function(event) {
+  if (event.source != window || event.data.type != 'WATCH_RESPONSE')
+    return;
+  document.getElementById('map_spinner').style.display = 'none';
+  var butterbar = document.getElementById('butterbar');
+  butterbar.textContent = event.data.message;
+  butterbar.style.display = 'inherit';
+  setTimeout(function() { butterbar.style.display = 'none'; }, 10000);
+});
