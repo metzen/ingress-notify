@@ -3,26 +3,29 @@
   <head>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.3/angular.min.js"></script>
     <script src="/static/app.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/ingress.css">
   </head>
   <body>
-    <h1>ingress-notify</h1>
+    <h1>Ingress Notify</h1>
     <p>
-      Setup your GMail to forward ingress notifications to
+      Setup your Gmail to forward ingress notifications to
       <strong>incoming@ingress-notify.appspotmail.com</strong>
     </p>
-    <h2>Portals</h2>
     <div ng-controller="PortalsCtrl">
+      <h2>Portals</h2>
       <span ng-hide="loaded">Loading...</span>
       <ul>
-        <li ng-repeat="portal in portals | orderBy:'name'">
+        <li ng-repeat="portal in portals | orderBy:'title'">
           <input type="checkbox" ng-model="portal.watched" ng-change="portal.handleWatchChange();"></input>
-          {{ portal.name }}
+          <span class="title"><a href="{{ portal.getIntelUrl() }}">{{ portal.title }}</a></span>
+          <span class="address">{{ portal.address }}</span>
         </li>
       </ul>
       <form name="portalForm" ng-submit="addPortal()">
-        <input type="text" ng-model="portalName" placeholder="Name" required>
+        <input type="text" ng-model="portalTitle" placeholder="Title" required>
         <input type="number" ng-model="portalLatE6" placeholder="latE6" required>
         <input type="number" ng-model="portalLngE6" placeholder="lngE6" required>
+        <input type="text" ng-model="portalAddress" placeholder="address">
         <input type="submit" value="Add portal" ng-disabled="!portalForm.$valid">
       </form>
     </div>

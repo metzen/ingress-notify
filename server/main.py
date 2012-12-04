@@ -20,12 +20,16 @@ class BaseHandler(webapp2.RequestHandler):
   def __init__(self, request, response):
     super(BaseHandler, self).__init__(request, response)
     user = users.get_current_user()
-    if not user:
+    if user:
+      logging.debug('User authenticated via SACSID cookie')
+    else:
       try:
         user = oauth.get_current_user()
+        logging.debug('User authenticated via OAuth token')
       except oauth.InvalidOAuthParametersError:
         pass
     if not user:
+      logging.info('No valid user authentication credentials supplied')
       self.user = None
       return
 
@@ -47,49 +51,35 @@ class PortalsHandler(BaseHandler):
     portals = memcache.get('portals') or []
     if not portals:
       logging.info('Pulling portals from datastore')
-      for p in models.Portal.all():
-        portals.append({
-            'name': p.name, 'latE6': p.latE6, 'lngE6': p.lngE6,
-            'watched': self.user.key() in p.subscribers,
-            })
-      portals = json.dumps(portals)
+      portals = list(models.Portal.all())
       memcache.set('portals', portals)
+    portals_json = []
+    for p in portals:
+      portals_json.append({
+          'title': p.title, 'latE6': p.latE6, 'lngE6': p.lngE6,
+          'address': p.address, 'watched': self.user.key() in p.subscribers,
+          })
     self.response.headers['Content-Type'] = 'application/json'
-    self.response.out.write(")]}',\n" + portals)
+    self.response.out.write(")]}',\n" + json.dumps(portals_json))
 
 
 class PortalHandler(BaseHandler):
   """Handler for the portal instance resource."""
 
-  def __init__(self, request, response):
-    super(PortalHandler, self).__init__(request, response)
-    args = self.request.route_args
-    self.portal = models.Portal.get_or_insert(
-        int(args[0]), int(args[1]), args[2], self.user)
-
-
-class PortalWatchHandler(PortalHandler):
-  """Handler for the portal instance watch resource."""
-
-  def get(self, lat, lng, name):
-    if self.user.key() not in self.portal.subscribers:
-      self.error(404)
-
-  def put(self, lat, lng, name):
-    if self.user.key() not in self.portal.subscribers:
-      self.portal.subscribers.append(self.user.key())
-      self.portal.put()
-    self.response.out.write('watch added')
-    xmpp.send_invite(self.user.email)
-
-  def delete(self, lat, lng, name):
-    try:
-      self.portal.subscribers.remove(self.user.key())
-    except ValueError:
-      pass
+  def put(self, lat, lng):
+    logging.debug(self.request.body)
+    kwargs = json.loads(self.request.body)
+    portal = models.Portal.get_or_insert(added_by=self.user, **kwargs)
+    if kwargs.get('watched'):
+      xmpp.send_invite(self.user.email)
+      if self.user.key() not in portal.subscribers:
+        portal.subscribers.append(self.user.key())
     else:
-      self.portal.put()
-    self.response.out.write('watch removed')
+      try:
+        portal.subscribers.remove(self.user.key())
+      except ValueError:
+        pass
+    portal.put()
 
 
 class XMPPHandler(webapp2.RequestHandler):
@@ -101,6 +91,5 @@ class XMPPHandler(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/portals', PortalsHandler),
-    ('/portals/(\d+),(-?\d+)-([^/]+)', PortalHandler),
-    ('/portals/(\d+),(-?\d+)-([^/]+)/watch', PortalWatchHandler),
+    ('/portals/(\d+),(-?\d+)', PortalHandler),
 ])
