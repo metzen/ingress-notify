@@ -15,8 +15,9 @@ window.addEventListener("message", function(event) {
   var portal = event.data;
   // TODO: Send with OAuth token.
   $.ajax({
-    url: 'https://ingress-notify.appspot.com/portals/' + portal.latE6 + ',' + portal.lngE6 + '-' + portal.title + '/watch',
-    type: portal.watched ? 'PUT' : 'DELETE'
+    url: 'https://ingress-notify.appspot.com/portals/' + portal.latE6 + ',' + portal.lngE6,
+    type: 'PUT',
+    data: JSON.stringify(portal)
   }).done(function() {
     var msg = portal.watched ? 'Subscribed to ' : 'Unsubscribed from ';
     alert(msg + portal.title);
