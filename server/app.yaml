@@ -15,6 +15,7 @@ handlers:
 - url: /_ah/admin.*
   script: google.appengine.ext.admin.application
   secure: always
+  login: admin
 
 - url: /
   static_files: index.html
