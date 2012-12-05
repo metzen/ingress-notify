@@ -11,16 +11,18 @@ window.addEventListener("message", function(event) {
   if (event.source != window || event.data.type != 'WATCH_REQUEST')
     return;
   var portal = event.data.portal;
+  var message;
   // TODO: Send with OAuth token.
   $.ajax({
     url: 'https://ingress-notify.appspot.com/portals/' + portal.latE6 + ',' + portal.lngE6,
     type: 'PUT',
     data: JSON.stringify(portal)
   }).done(function() {
-    var msg = portal.watched ? 'Watching portal ' : 'Unwatched portal '
-    window.postMessage({
-        'type': 'WATCH_RESPONSE',
-        'message': msg + JSON.stringify(portal.title)
-    }, '*');
+    message = (portal.watched ? 'Watching portal ' : 'Unwatched portal ') +
+              JSON.stringify(portal.title);
+  }).fail(function() {
+    message = 'Action failed!';
+  }).always(function() {
+    window.postMessage({'type': 'WATCH_RESPONSE', 'message': message}, '*');
   });
 }, false);

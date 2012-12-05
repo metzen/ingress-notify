@@ -18,7 +18,7 @@ xd = function(a, b) {
     if (div.id == 'portal_metadata') {
       var watchDiv = document.createElement('div');
       var watchLink = document.createElement('a');
-      watchLink.href = 'javascript:NOTIFY_watch(' + [JSON.stringify(a.j.title), a.j.Gb * 1E6, a.j.Hb * 1E6, true].join(', ') + ');';
+      watchLink.href = 'javascript:NOTIFY_watch(' + [JSON.stringify(a.j.title), a.j.Hb * 1E6, a.j.Ib * 1E6, true].join(', ') + ');';
       watchLink.textContent = 'Watch';
       watchLink.style.color = '#11ECF7';
       watchDiv.appendChild(watchLink);
@@ -28,7 +28,7 @@ xd = function(a, b) {
       watchDiv.appendChild(space);
 
       var unwatchLink = document.createElement('a');
-      unwatchLink.href = 'javascript:NOTIFY_watch(' + [JSON.stringify(a.j.title), a.j.Gb * 1E6, a.j.Hb * 1E6, false].join(', ') + ');';
+      unwatchLink.href = 'javascript:NOTIFY_watch(' + [JSON.stringify(a.j.title), a.j.Hb * 1E6, a.j.Ib * 1E6, false].join(', ') + ');';
       unwatchLink.textContent = 'Unwatch';
       unwatchLink.style.color = '#11ECF7';
       watchDiv.appendChild(unwatchLink);
@@ -39,12 +39,17 @@ xd = function(a, b) {
   return node.innerHTML;
 };
 
+var butterHideTimeout;
 window.addEventListener("message", function(event) {
   if (event.source != window || event.data.type != 'WATCH_RESPONSE')
     return;
   document.getElementById('map_spinner').style.display = 'none';
+
+  clearTimeout(butterHideTimeout);
   var butterbar = document.getElementById('butterbar');
   butterbar.textContent = event.data.message;
   butterbar.style.display = 'inherit';
-  setTimeout(function() { butterbar.style.display = 'none'; }, 10000);
+  butterHideTimeout = setTimeout(function() {
+    butterbar.style.display = 'none';
+  }, 10000);
 });
