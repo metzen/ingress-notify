@@ -4,13 +4,27 @@
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.3/angular.min.js"></script>
     <script src="/static/app.js"></script>
     <link rel="stylesheet" type="text/css" href="/static/ingress.css">
+    <link rel="chrome-webstore-item"
+        href="https://chrome.google.com/webstore/detail/bdlnageoicfcjdmkcljkompgphkeeghp">
   </head>
   <body>
     <h1>Ingress Notify</h1>
-    <p>
-      Setup your Gmail to forward ingress notifications to
-      <strong>incoming@ingress-notify.appspotmail.com</strong>
-    </p>
+    <h2>Instructions</h2>
+    <ol>
+      <li>
+        Install the <a onclick="chrome.webstore.install()"">Chrome Extension</a>
+      </li>
+      <li>
+        Setup your Gmail to forward ingress notifications to
+        <strong>incoming@ingress-notify.appspotmail.com</strong>
+      </li>
+      <li>
+        Subscribe to alert messages for portals by either clicking the "Watch"
+        link on the portal information popup in the
+        <a href="http://www.ingress.com/intel">Ingress Intel Map</a>, or check
+        to the box next to the portal below.
+      </li>
+    </ol>
     <div ng-controller="PortalsCtrl">
       <h2>Portals</h2>
       <span ng-hide="loaded">Loading...</span>
