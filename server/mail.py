@@ -51,7 +51,7 @@ class Handler(mail_handlers.InboundMailHandler):
             users = models.User.get(portal.subscribers)
             xmpp.send_message(
                 [user.email for user in users],
-                'Alert! "%s" is under attack! %s' % (portal.name, url))
+                'Alert! *%s* is under attack! %s' % (portal.title, url))
 
 
 app = webapp2.WSGIApplication([Handler.mapping()])
