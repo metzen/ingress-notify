@@ -7,7 +7,7 @@ var oauth = ChromeExOAuth.initBackgroundPage({
   'consumer_key': 'anonymous',
   'consumer_secret': 'anonymous',
   'scope': 'unused',
-  'app_name': 'Ingress Notify'
+  'app_name': 'Ingress Notifier'
 });
 
 
