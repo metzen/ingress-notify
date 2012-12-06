@@ -21,11 +21,11 @@ class BaseHandler(webapp2.RequestHandler):
     super(BaseHandler, self).__init__(request, response)
     user = users.get_current_user()
     if user:
-      logging.debug('User authenticated via SACSID cookie')
+      logging.debug('User authenticated via SACSID cookie: ' + user.email())
     else:
       try:
         user = oauth.get_current_user()
-        logging.debug('User authenticated via OAuth token')
+        logging.debug('User authenticated via OAuth token: ' + user.email())
       except oauth.InvalidOAuthParametersError:
         pass
     if not user:
