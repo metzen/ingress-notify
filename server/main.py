@@ -39,7 +39,7 @@ class BaseHandler(webapp2.RequestHandler):
       self.user.put()
 
   def dispatch(self):
-    if not self.user:
+    if not self.user and self.request.method != 'OPTIONS':
       return self.redirect(users.create_login_url(self.request.path))
     super(BaseHandler, self).dispatch()
 
