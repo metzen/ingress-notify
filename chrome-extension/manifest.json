@@ -14,7 +14,11 @@
   "content_scripts": [
     {
       "matches": ["http://www.ingress.com/intel*"],
-      "js": ["ingress-override-bootstrap.js", "jquery.min.js"]
+      "js": [
+          "angular.min.js",
+          "app.js",
+          "ingress-override-bootstrap.js"
+      ]
     }
   ],
   "web_accessible_resources": [
@@ -24,6 +28,8 @@
     "scripts": [
         "chrome_ex_oauthsimple.js",
         "chrome_ex_oauth.js",
+        "angular.min.js",
+        "app.js",
         "background.js"
     ],
     "persistent": false
