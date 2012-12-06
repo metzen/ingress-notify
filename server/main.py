@@ -81,6 +81,16 @@ class PortalHandler(BaseHandler):
         pass
     portal.put()
 
+  def options(self, unused_lat, unused_lng):
+    self.response.headers.add(
+        'Access-Control-Allow-Credentials', 'true');
+    self.response.headers.add(
+        'Access-Control-Allow-Origin', 'http://www.ingress.com');
+    self.response.headers.add(
+        'Access-Control-Allow-Methods', 'PUT');
+    self.response.headers.add(
+        'Access-Control-Max-Age', '1728000');
+
 
 class XMPPHandler(webapp2.RequestHandler):
   def post(self):
