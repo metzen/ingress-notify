@@ -1,3 +1,5 @@
+"""Incoming mail handler."""
+
 import logging
 import re
 import urllib2
@@ -16,25 +18,26 @@ PORTAL_URL_RE = re.compile(r'"(http://www.ingress.com/intel.*?)"')
 
 
 class Handler(mail_handlers.InboundMailHandler):
+  """Incoming mail handler."""
 
   def receive(self, mail_message):
     if 'Gmail Forwarding Confirmation' in mail_message.subject:
       logging.info('Received Gmail forwarding request')
-      for content_type, body in mail_message.bodies('text/plain'):
+      for _content_type, body in mail_message.bodies('text/plain'):
         decoded_body = body.decode()
         logging.debug(
             'Gmail forwarding confirmation mail body:\n' + decoded_body)
-        m = REQUESTER_RE.search(decoded_body)
-        requester = m.group(1)
-        logging.info("Registering '%s'" % requester)
-        m = CONFIRMATION_RE.search(decoded_body)
-        urllib2.urlopen(m.group(0))
+        match = REQUESTER_RE.search(decoded_body)
+        requester = match.group(1)
+        logging.info("Registering '%s'", requester)
+        match = CONFIRMATION_RE.search(decoded_body)
+        urllib2.urlopen(match.group(0))
     else:
       logging.info('Received Ingress notification mail')
 
-      for content_type, body in mail_message.bodies('text/html'):
+      for _content_type, body in mail_message.bodies('text/html'):
         decoded_body = body.decode()
-        logging.info('decoded body: %s' % decoded_body)
+        logging.info('decoded body: %s', decoded_body)
         try:
           url = PORTAL_URL_RE.search(decoded_body).group(1)
           lat = int(LATITUDE_RE.search(decoded_body).group(1))
@@ -42,7 +45,7 @@ class Handler(mail_handlers.InboundMailHandler):
         except AttributeError:
           logging.error('Failed to parse notification mail')
         else:
-          logging.info('Portal coordinates: (%d, %d)' % (lat, lng))
+          logging.info('Portal coordinates: (%d, %d)', lat, lng)
           portal = models.Portal.get_by_lat_lng(lat, lng)
           if not portal:
             logging.info('Unknown portal')
@@ -54,4 +57,4 @@ class Handler(mail_handlers.InboundMailHandler):
                 'Alert! *%s* is under attack! %s' % (portal.title, url))
 
 
-app = webapp2.WSGIApplication([Handler.mapping()])
+APP = webapp2.WSGIApplication([Handler.mapping()])

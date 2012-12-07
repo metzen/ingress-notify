@@ -1,3 +1,5 @@
+"""Main request handlers."""
+
 import json
 import logging
 
@@ -54,10 +56,11 @@ class PortalsHandler(BaseHandler):
       portals = list(models.Portal.all())
       memcache.set('portals', portals)
     portals_json = []
-    for p in portals:
+    for portal in portals:
       portals_json.append({
-          'title': p.title, 'latE6': p.latE6, 'lngE6': p.lngE6,
-          'address': p.address, 'watched': self.user.key() in p.subscribers,
+          'title': portal.title, 'latE6': portal.latE6, 'lngE6': portal.lngE6,
+          'address': portal.address,
+          'watched': self.user.key() in portal.subscribers,
           })
     self.response.headers['Content-Type'] = 'application/json'
     self.response.out.write(")]}',\n" + json.dumps(portals_json))
@@ -66,7 +69,7 @@ class PortalsHandler(BaseHandler):
 class PortalHandler(BaseHandler):
   """Handler for the portal instance resource."""
 
-  def put(self, lat, lng):
+  def put(self, _lat, _lng):
     logging.debug(self.request.body)
     kwargs = json.loads(self.request.body)
     portal = models.Portal.get_or_insert(added_by=self.user, **kwargs)
@@ -81,7 +84,7 @@ class PortalHandler(BaseHandler):
         pass
     portal.put()
 
-  def options(self, unused_lat, unused_lng):
+  def options(self, _lat, _lng):
     self.response.headers.add(
         'Access-Control-Allow-Credentials', 'true')
     self.response.headers.add(
@@ -92,14 +95,7 @@ class PortalHandler(BaseHandler):
         'Access-Control-Max-Age', '1728000')
 
 
-class XMPPHandler(webapp2.RequestHandler):
-  def post(self):
-    message = xmpp.Message(self.request.POST)
-    logging.info(message.body)
-    logging.info(self.request.POST['stanza'])
-
-
-app = webapp2.WSGIApplication([
-    ('/portals', PortalsHandler),
-    ('/portals/(\d+),(-?\d+)', PortalHandler),
+APP = webapp2.WSGIApplication([
+    (r'/portals', PortalsHandler),
+    (r'/portals/(\d+),(-?\d+)', PortalHandler),
 ])

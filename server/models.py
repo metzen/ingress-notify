@@ -1,3 +1,5 @@
+"""Data models."""
+
 from google.appengine.api import memcache
 from google.appengine.ext import db
 
