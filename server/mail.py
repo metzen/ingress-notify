@@ -2,6 +2,7 @@ import logging
 import re
 import urllib2
 
+from google.appengine.api import memcache
 from google.appengine.api import mail
 from google.appengine.api import xmpp
 from google.appengine.ext import db
@@ -49,9 +50,17 @@ class Handler(mail_handlers.InboundMailHandler):
           elif portal.subscribers:
             logging.info('Portal has subscribers; sending alerts')
             users = models.User.get(portal.subscribers)
-            xmpp.send_message(
-                [user.email for user in users],
-                'Alert! *%s* is under attack! %s' % (portal.title, url))
+            SendMessage(users, portal, url)
+
+
+def SendMessage(users, portal, url):
+  portal_keyname = portal.key().name()
+  emails = [
+      user.email for user in users
+      if memcache.add('%s|||%s' % (portal_keyname, user.email), 1, time=120)]
+  if emails:
+    msg = 'Alert! *%s* is under attack! %s' % (portal.title, url)
+    xmpp.send_message(emails, msg)
 
 
 app = webapp2.WSGIApplication([Handler.mapping()])
