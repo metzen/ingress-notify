@@ -18,17 +18,25 @@ xd = function(a, b) {
     if (div.id == 'portal_metadata') {
       var watchDiv = document.createElement('div');
       var watchLink = document.createElement('a');
-      watchLink.href = 'javascript:NOTIFY_watch(' + [JSON.stringify(a.j.title), a.j.Hb * 1E6, a.j.Ib * 1E6, true].join(', ') + ');';
+      watchLink.href = 'javascript:NOTIFY_watch(' +
+          [JSON.stringify(a.j.title),
+           Math.round(a.j.Hb * 1E6),
+           Math.round(a.j.Ib * 1E6),
+           true].join(', ') + ');';
       watchLink.textContent = 'Watch';
       watchLink.style.color = '#11ECF7';
       watchDiv.appendChild(watchLink);
 
-      var space = document.createElement('span')
+      var space = document.createElement('span');
       space.textContent = ' | ';
       watchDiv.appendChild(space);
 
       var unwatchLink = document.createElement('a');
-      unwatchLink.href = 'javascript:NOTIFY_watch(' + [JSON.stringify(a.j.title), a.j.Hb * 1E6, a.j.Ib * 1E6, false].join(', ') + ');';
+      unwatchLink.href = 'javascript:NOTIFY_watch(' +
+          [JSON.stringify(a.j.title),
+           Math.round(a.j.Hb * 1E6),
+           Math.round(a.j.Ib * 1E6),
+           false].join(', ') + ');';
       unwatchLink.textContent = 'Unwatch';
       unwatchLink.style.color = '#11ECF7';
       watchDiv.appendChild(unwatchLink);
