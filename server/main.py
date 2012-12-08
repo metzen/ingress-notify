@@ -35,10 +35,15 @@ class BaseHandler(webapp2.RequestHandler):
       self.user = None
       return
 
-    self.user = models.User.get_or_insert(user.user_id(), email=user.email())
+    key = models.User.get_memcache_key(user.user_id())
+    self.user = memcache.get(key)
+    if self.user is None:
+      self.user = models.User.get_or_insert(user.user_id(), email=user.email())
+      memcache.set(key, self.user)
     if self.user.email != user.email():
       self.user.email = user.email()
       self.user.put()
+      memcache.set(key, self.user)
 
   def dispatch(self):
     if not self.user and self.request.method != 'OPTIONS':

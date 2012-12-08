@@ -8,6 +8,10 @@ class User(db.Model):
   # key: User.user_id()
   email = db.StringProperty()
 
+  @classmethod
+  def get_memcache_key(cls, user_id):
+    return 'User|%s' % user_id
+
 
 class Portal(db.Model):
   # key: latE6,lngE6
