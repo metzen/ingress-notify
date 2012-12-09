@@ -77,7 +77,7 @@ class PortalsHandler(BaseHandler):
     self.response.headers['Content-Type'] = 'application/json'
     portals_query = models.Portal.all()
     if self.request.get('watched'):
-      key = 'watched-portals|%s' % self.user.key().id()
+      key = 'watched-portals|%s' % self.user.key()
       portals_json = memcache.get(key)
       if not portals_json:
         portals_query.filter('subscribers', self.user.key())
@@ -113,7 +113,7 @@ class PortalHandler(BaseHandler):
       except ValueError:
         pass
     portal.put()
-    memcache.delete('watched-portals|%s' % self.user.key().id())
+    memcache.delete('watched-portals|%s' % self.user.key())
 
   def options(self, _lat, _lng):
     self.response.headers.add(
