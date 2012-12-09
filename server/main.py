@@ -11,6 +11,7 @@ from google.appengine.api import xmpp
 import webapp2
 
 import models
+import util
 
 
 class PortalJSONEncoder(json.JSONEncoder):
@@ -99,9 +100,11 @@ class PortalsHandler(BaseHandler):
 class PortalHandler(BaseHandler):
   """Handler for the portal instance resource."""
 
-  def put(self, _lat, _lng):
+  def put(self, lat, lng):
     logging.debug(self.request.body)
     kwargs = json.loads(self.request.body)
+    if not kwargs.get('address'):
+      kwargs['address'] = util.lookup_address(lat, lng)
     portal = models.Portal.get_or_insert(added_by=self.user, **kwargs)
     if kwargs.get('watched'):
       xmpp.send_invite(self.user.email)
