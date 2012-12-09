@@ -58,7 +58,7 @@ class PortalsHandler(BaseHandler):
     portals = memcache.get('portals') or []
     if not portals:
       logging.info('Pulling portals from datastore')
-      portals = list(models.Portal.all())
+      portals = list(models.Portal.all().run(batch_size=1000))
       memcache.set('portals', portals)
     portals_json = []
     for portal in portals:
