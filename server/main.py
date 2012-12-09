@@ -1,5 +1,6 @@
 """Main request handlers."""
 
+import collections
 import json
 import logging
 
@@ -10,6 +11,24 @@ from google.appengine.api import xmpp
 import webapp2
 
 import models
+
+
+class PortalJSONEncoder(json.JSONEncoder):
+  """JSON Encoder for models.Portal."""
+
+  def __init__(self, user, *args, **kwargs):
+    self.user = user
+    super(PortalJSONEncoder, self).__init__(*args, **kwargs)
+
+  def default(self, o):
+    if isinstance(o, collections.Iterable):
+      return [self.default(portal) for portal in o]
+    if isinstance(o, models.Portal):
+      return {
+          'title': o.title, 'latE6': o.latE6, 'lngE6': o.lngE6,
+          'address': o.address, 'watched': self.user.key() in o.subscribers,
+          }
+    return super(PortalJSONEncoder, self).default(o)
 
 
 class BaseHandler(webapp2.RequestHandler):
@@ -55,20 +74,26 @@ class PortalsHandler(BaseHandler):
   """Handler for the portals collection resource."""
 
   def get(self):
-    portals = memcache.get('portals') or []
-    if not portals:
-      logging.info('Pulling portals from datastore')
-      portals = list(models.Portal.all().run(batch_size=1000))
-      memcache.set('portals', portals)
-    portals_json = []
-    for portal in portals:
-      portals_json.append({
-          'title': portal.title, 'latE6': portal.latE6, 'lngE6': portal.lngE6,
-          'address': portal.address,
-          'watched': self.user.key() in portal.subscribers,
-          })
     self.response.headers['Content-Type'] = 'application/json'
-    self.response.out.write(")]}',\n" + json.dumps(portals_json))
+    portals_query = models.Portal.all()
+    if self.request.get('watched'):
+      key = 'watched-portals|%s' % self.user.key().id()
+      portals_json = memcache.get(key)
+      if not portals_json:
+        portals_query.filter('subscribers', self.user.key())
+        portals_json = json.dumps(
+            portals_query.run(batch_size=1000), cls=PortalJSONEncoder,
+            user=self.user)
+        memcache.set(key, portals_json)
+    else:
+      key = 'portals'
+      portals = memcache.get(key) or []
+      if not portals:
+        logging.info('Pulling portals from datastore')
+        portals = list(portals_query.run(batch_size=1000))
+        memcache.set('portals', portals)
+      portals_json = json.dumps(portals, cls=PortalJSONEncoder, user=self.user)
+    self.response.out.write(")]}',\n" + portals_json)
 
 
 class PortalHandler(BaseHandler):
@@ -88,6 +113,7 @@ class PortalHandler(BaseHandler):
       except ValueError:
         pass
     portal.put()
+    memcache.delete('watched-portals|%s' % self.user.key().id())
 
   def options(self, _lat, _lng):
     self.response.headers.add(
