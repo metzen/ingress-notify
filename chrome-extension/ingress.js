@@ -1,6 +1,6 @@
 function PortalsCtrl($scope, $http) {
   $scope.portals = null;
-  $http.get('https://ingress-notify.appspot.com/portals').success(
+  $http.get('https://ingress-notify.appspot.com/portals?watched=true').success(
       function(data) { $scope.portals = data; });
 
   $scope.unwatch = function(portal) {
