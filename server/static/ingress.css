@@ -62,7 +62,7 @@ input[type="submit"] {
 input[disabled][type="submit"] {
   background-color: rgb(0, 43, 40);
   border: 1px solid rgb(43, 122, 114);
-  color: 1px solid rgb(43, 122, 114);
+  color: rgb(43, 122, 114);
 }
 input:not([disabled])[type="submit"]:active {
   color: #28f428;
