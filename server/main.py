@@ -17,17 +17,13 @@ import util
 class PortalJSONEncoder(json.JSONEncoder):
   """JSON Encoder for models.Portal."""
 
-  def __init__(self, user, *args, **kwargs):
-    self.user = user
-    super(PortalJSONEncoder, self).__init__(*args, **kwargs)
-
   def default(self, o):
     if isinstance(o, collections.Iterable):
       return [self.default(portal) for portal in o]
     if isinstance(o, models.Portal):
       return {
           'title': o.title, 'latE6': o.latE6, 'lngE6': o.lngE6,
-          'address': o.address, 'watched': self.user.key() in o.subscribers,
+          'address': o.address,
           }
     return super(PortalJSONEncoder, self).default(o)
 
@@ -83,17 +79,16 @@ class PortalsHandler(BaseHandler):
       if not portals_json:
         portals_query.filter('subscribers', self.user.key())
         portals_json = json.dumps(
-            portals_query.run(batch_size=1000), cls=PortalJSONEncoder,
-            user=self.user)
+            portals_query.run(batch_size=1000), cls=PortalJSONEncoder)
         memcache.set(key, portals_json)
     else:
       key = 'portals'
-      portals = memcache.get(key) or []
-      if not portals:
+      portals_json = memcache.get(key)
+      if not portals_json:
         logging.info('Pulling portals from datastore')
-        portals = list(portals_query.run(batch_size=1000))
-        memcache.set('portals', portals)
-      portals_json = json.dumps(portals, cls=PortalJSONEncoder, user=self.user)
+        portals_json = json.dumps(
+            portals_query.run(batch_size=1000), cls=PortalJSONEncoder)
+        memcache.set('portals', portals_json)
     self.response.out.write(")]}',\n" + portals_json)
 
 
@@ -105,7 +100,9 @@ class PortalHandler(BaseHandler):
     kwargs = json.loads(self.request.body)
     if not kwargs.get('address'):
       kwargs['address'] = util.lookup_address(lat, lng)
-    portal = models.Portal.get_or_insert(added_by=self.user, **kwargs)
+    portal, created = models.Portal.get_or_insert(added_by=self.user, **kwargs)
+    if created:
+      memcache.delete('portals')
     if kwargs.get('watched'):
       xmpp.send_invite(self.user.email)
       if self.user.key() not in portal.subscribers:

@@ -30,6 +30,28 @@ li {
   color: #11ECF7;
 }
 
+.portal {
+  position: relative;
+}
+
+.unwatch {
+  position: absolute;
+  right: 3px;
+}
+
+.suggested-portals li {
+  cursor: pointer;
+}
+
+.suggested-portals li:hover {
+  background-color: #2E2E2E;
+}
+
+.saving {
+  position: absolute;
+  right: 15px;
+}
+
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     /* display: none; <- Crashes Chrome on hover */

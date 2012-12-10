@@ -23,10 +23,6 @@ class Portal(db.Model):
   added_by = db.ReferenceProperty(User)
   added_on = db.DateTimeProperty(auto_now_add=True)
 
-  def put(self, *args, **kwargs):
-    super(Portal, self).put(*args, **kwargs)
-    memcache.delete('portals')
-
   @classmethod
   def get_by_lat_lng(cls, lat, lng):
     return cls.get_by_key_name('%s,%s' % (lat, lng))
@@ -39,5 +35,13 @@ class Portal(db.Model):
 
   @classmethod
   def get_or_insert(cls, latE6, lngE6, **kwargs):
-    return super(Portal, cls).get_or_insert(
-        '%s,%s' % (latE6, lngE6), latE6=latE6, lngE6=lngE6, **kwargs)
+    def txn(key_name, **kwds):
+      created = False
+      entity = cls.get_by_key_name(key_name, parent=kwds.get('parent'))
+      if entity is None:
+        entity = cls(key_name=key_name, **kwds)
+        entity.put()
+        created = True
+      return entity, created
+    return db.run_in_transaction(
+        txn, '%s,%s' % (latE6, lngE6), latE6=latE6, lngE6=lngE6, **kwargs)
