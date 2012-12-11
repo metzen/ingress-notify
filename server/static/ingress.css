@@ -39,10 +39,24 @@ li {
   right: 3px;
 }
 
+.suggested-portals {
+  background: black;
+  border: 1px solid #11ECF7;
+  box-shadow: 0 0 14px #11ECF7;
+  position: absolute;
+  width: 600px;
+  z-index: 100;
+}
+
+.suggested-portals ul {
+  margin: 0;
+}
+
 .suggested-portals li {
   cursor: pointer;
 }
 
+.suggested-portals:not(:hover) .selected,
 .suggested-portals li:hover {
   background-color: #2E2E2E;
 }

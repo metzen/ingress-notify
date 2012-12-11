@@ -1,4 +1,4 @@
-angular.module('ingress', [], function($filterProvider) {
+angular.module('ingress', ['ui'], function($filterProvider) {
   $filterProvider.register('values', function() {
     return function(obj) {
       if (!obj) return obj;
@@ -60,9 +60,10 @@ function Portal(title, latE6, lngE6, address, watched, $http) {
 }
 
 
-function PortalsCtrl($scope, $http) {
+function PortalsCtrl($scope, $http, $filter) {
   $scope.watchedPortals = null;
   $scope.suggestedPortals = [];
+  $scope.selectedIndex = -1;
   var unwatchedPortals = null;
 
   $http.get('/portals?watched=true').success(function(data, status, headers, config) {
@@ -94,6 +95,7 @@ function PortalsCtrl($scope, $http) {
     portal.save();
     $scope.watchedPortals[portal] = portal;
     delete unwatchedPortals[portal];
+    $scope.suggestedPortals = [];
     $scope.portalTitle = '';
     $scope.portalLatE6 = '';
     $scope.portalLngE6 = '';
@@ -112,21 +114,64 @@ function PortalsCtrl($scope, $http) {
     $scope.portalLatE6 = portal.latE6;
     $scope.portalLngE6 = portal.lngE6;
     $scope.portalAddress = portal.address;
-    $scope.suggestedPortals = [];
+    $scope.clearSuggestedPortals();
   };
 
   $scope.suggestPortals = function() {
-    $scope.suggestedPortals = [];
+    $scope.clearSuggestedPortals();
+    var count = 0;
     angular.forEach(unwatchedPortals, function(portal) {
-      if ($scope.portalTitle && portal.title.toLowerCase().indexOf(
-              $scope.portalTitle.toLowerCase()) != -1) {
+      if (count >= 10) return;
+      var suggest = false;
+      if ($scope.portalTitle) {
+        if (portal.title && portal.title.toLowerCase().indexOf(
+                $scope.portalTitle.toLowerCase()) != -1) {
+          suggest = true;
+        } else {
+          return;
+        }
+      }
+      if ($scope.portalAddress) {
+        if (portal.address && portal.address.toLowerCase().indexOf(
+                $scope.portalAddress.toLowerCase()) != -1) {
+          suggest = true;
+        } else {
+          return;
+        }
+      }
+      if (suggest) {
         $scope.suggestedPortals.push(portal);
+        count++;
       }
     });
+    $scope.suggestedPortals = $filter('orderBy')($scope.suggestedPortals, 'title');
   };
 
   $scope.portalOrderBy = function(portal) {
     if (!angular.isDefined(portal)) return;
     return portal.title;
+  };
+
+  $scope.clearSuggestedPortals = function() {
+    $scope.suggestedPortals = [];
+    $scope.selectedIndex = -1;
+  };
+
+  $scope.down = function(event) {
+    if ($scope.selectedIndex < $scope.suggestedPortals.length - 1) {
+      $scope.selectedIndex++;
+    }
+  };
+
+  $scope.up = function(event) {
+    if ($scope.selectedIndex > 0) {
+      $scope.selectedIndex--;
+    }
+  };
+
+  $scope.enter = function(event) {
+    if ($scope.selectedIndex == -1) return;
+    $scope.populateFromSuggestion($scope.suggestedPortals[$scope.selectedIndex]);
+    event.preventDefault();
   };
 }

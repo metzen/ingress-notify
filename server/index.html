@@ -3,6 +3,7 @@
   <head>
     <title>ingress-notify</title>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.3/angular.min.js"></script>
+    <script src="/static/angular-ui.min.js"></script>
     <script src="/static/app.js"></script>
     <link rel="stylesheet" type="text/css" href="/static/ingress.css">
     <link rel="chrome-webstore-item"
@@ -29,12 +30,36 @@
     <p>
       Send questions or suggestions to
       <a href="https://groups.google.com/forum/?fromgroups#!forum/ingress-notify-users">ingress-notify-users@googlegroups.com</a>.
+      Source is on <a href="https://github.com/metzen/ingress-notify">GitHub</a>;
+      contributions welcome.
     </p>
     <div ng-controller="PortalsCtrl">
       <h2>Portals</h2>
-      <div ng-show="watchedPortals == null">
-        <img src="/static/spinner.gif" alt="loading"> Loading...
+
+      <form name="portalForm" ng-submit="watchPortal()"
+          ui-keyup="{38: 'up()', 40:'down()', 27: 'clearSuggestedPortals()'}"
+          ui-keypress="{13: 'enter($event)'}">
+        <input type="text" ng-model="portalTitle" placeholder="Title" required
+            ng-change="suggestPortals()" >
+        <input type="text" ng-model="portalAddress" placeholder="Address"
+            ng-change="suggestPortals()">
+        <input type="number" ng-model="portalLatE6" placeholder="LatE6" required>
+        <input type="number" ng-model="portalLngE6" placeholder="LngE6" required>
+        <input type="submit" value="Add portal" ng-disabled="!portalForm.$valid">
+      </form>
+      <div ng-show="suggestedPortals" class="suggested-portals">
+        <ul>
+          <li ng-repeat="portal in suggestedPortals"
+              ng-click="populateFromSuggestion(portal)"
+              ng-class="{selected: $index == selectedIndex}">
+            <a>{{ portal.title }}</a> {{ portal.address }}
+          </li>
+        </ul>
       </div>
+
+      <p ng-show="watchedPortals == null">
+        <img src="/static/spinner.gif" alt="loading"> Loading...
+      </p>
       <ul>
         <li ng-repeat="portal in watchedPortals | values | orderBy:'title'" class="portal">
           <a class="unwatch" ng-click="unwatchPortal(portal)" title="Unwatch">
@@ -45,23 +70,7 @@
           <span class="address">{{ portal.address }}</span>
         </li>
       </ul>
-      <form name="portalForm" ng-submit="watchPortal()">
-        <input type="text" ng-model="portalTitle" placeholder="Title" required
-            ng-change="suggestPortals()">
-        <input type="number" ng-model="portalLatE6" placeholder="LatE6" required>
-        <input type="number" ng-model="portalLngE6" placeholder="LngE6" required>
-        <input type="text" ng-model="portalAddress" placeholder="Address">
-        <input type="submit" value="Add portal" ng-disabled="!portalForm.$valid">
-      </form>
-      <div ng-show="suggestedPortals" class="suggested-portals">
-        <h3>Suggestions</h3>
-        <ul>
-          <li ng-repeat="portal in suggestedPortals | limitTo:10 | orderBy:'title'"
-              ng-click="populateFromSuggestion(portal)">
-            <a>{{ portal.title }}</a> {{ portal.address }}
-          </li>
-        </ul>
-      </div>
+
     </div>
   </body>
 </html>
