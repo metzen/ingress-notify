@@ -37,7 +37,7 @@
       <h2>Portals</h2>
 
       <form name="portalForm" ng-submit="watchPortal()"
-          ui-keyup="{38: 'up()', 40:'down()', 27: 'clearSuggestedPortals()'}"
+          ui-keydown="{38: 'up()', 40: 'down()', 27: 'clearSuggestedPortals()'}"
           ui-keypress="{13: 'enter($event)'}">
         <input type="text" ng-model="portalTitle" placeholder="Title" required
             ng-change="suggestPortals()" >
