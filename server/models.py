@@ -7,6 +7,8 @@ from google.appengine.ext import db
 class User(db.Model):
   # key: User.user_id()
   email = db.StringProperty()
+  created_at = db.DateTimeProperty(auto_now_add=True)
+  last_visit_at = db.DateTimeProperty()
 
   @classmethod
   def get_memcache_key(cls, user_id):

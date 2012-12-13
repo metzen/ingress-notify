@@ -1,6 +1,7 @@
 """Main request handlers."""
 
 import collections
+import datetime
 import json
 import logging
 
@@ -8,6 +9,7 @@ from google.appengine.api import memcache
 from google.appengine.api import oauth
 from google.appengine.api import users
 from google.appengine.api import xmpp
+from google.appengine.ext import db
 import webapp2
 
 import models
@@ -58,8 +60,9 @@ class BaseHandler(webapp2.RequestHandler):
       memcache.set(key, self.user)
     if self.user.email != user.email():
       self.user.email = user.email()
-      self.user.put()
       memcache.set(key, self.user)
+    self.user.last_visit_at = datetime.datetime.now()
+    db.put_async(self.user)
 
   def dispatch(self):
     if not self.user and self.request.method != 'OPTIONS':
