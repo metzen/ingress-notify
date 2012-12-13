@@ -58,7 +58,7 @@ li {
 
 .suggested-portals:not(:hover) .selected,
 .suggested-portals li:hover {
-  background-color: #2E2E2E;
+  background-color: #004F4A;
 }
 
 .saving {
@@ -95,13 +95,14 @@ input[type="submit"] {
   color: #59fbea;
   padding: 1px 15px;
 }
+input:not([disabled])[type="submit"]:hover {
+  box-shadow: rgba(89, 251, 234, 1) 0 1px 5px 0;
+}
+input:not([disabled])[type="submit"]:active {
+  box-shadow: rgba(0, 0, 0, 1) 0 1px 4px 0 inset;
+}
 input[disabled][type="submit"] {
   background-color: rgb(0, 43, 40);
   border: 1px solid rgb(43, 122, 114);
   color: rgb(43, 122, 114);
-}
-input:not([disabled])[type="submit"]:active {
-  color: #28f428;
-  background-color: #044800;
-  border: 1px solid #28f428;
 }
