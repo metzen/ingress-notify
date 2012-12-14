@@ -5,11 +5,59 @@
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.3/angular.min.js"></script>
     <script src="/static/angular-ui.min.js"></script>
     <script src="/static/app.js"></script>
+    <script type="text/javascript"
+        src="//maps.googleapis.com/maps/api/js?key=AIzaSyB24dT37jVwvLz_AiV0K1RoAbEOyPdGHQA&sensor=false">
+    </script>
     <link rel="stylesheet" type="text/css" href="/static/ingress.css">
     <link rel="chrome-webstore-item"
         href="https://chrome.google.com/webstore/detail/bdlnageoicfcjdmkcljkompgphkeeghp">
+    <script type="text/javascript">
+      var map;
+      function initialize() {
+        var mapOptions = {
+          center: new google.maps.LatLng(0, 0),
+          zoom: 1,
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          styles: [
+            {
+              elementType: 'all',
+              featureType: 'all',
+              stylers: [
+                {visibility: 'on'},
+                {hue: '#0091ff'},
+                {invert_lightness: true},
+              ]
+            },
+            {
+              elementType: 'all',
+              featureType: 'water',
+              stylers: [
+                {visibility: 'on'},
+                {hue: '#005eff'},
+                {invert_lightness: true},
+              ]
+            },
+            {
+              featureType: 'poi',
+              stylers: [
+                {visibility: 'off'},
+              ]
+            },
+            {
+              elementType: 'all',
+              featureType: 'transit',
+              stylers: [
+                {visibility: 'off'},
+              ]
+            }
+          ]
+        }
+        map = new google.maps.Map(document.getElementById("map-canvas"),
+            mapOptions);
+      }
+    </script>
   </head>
-  <body>
+  <body onload="initialize()">
     <h1>Ingress Notify</h1>
     <h2>Instructions</h2>
     <ol>
@@ -33,7 +81,7 @@
       Source is on <a href="https://github.com/metzen/ingress-notify">GitHub</a>;
       contributions welcome.
     </p>
-    <div ng-controller="PortalsCtrl">
+    <div ng-controller="PortalsCtrl" class="watched-portals">
       <h2>Portals</h2>
 
       <form name="portalForm" ng-submit="watchPortal()"
@@ -61,7 +109,10 @@
         <img src="/static/spinner.gif" alt="loading"> Loading...
       </p>
       <ul>
-        <li ng-repeat="portal in watchedPortals | values | orderBy:'title'" class="portal">
+        <li ng-repeat="portal in watchedPortals | values | orderBy:'title'"
+            ng-mouseenter="handleMouseover($event, portal)"
+            ng-mouseleave="handleMouseout($event, portal)"
+            class="portal">
           <a class="unwatch" ng-click="unwatchPortal(portal)" title="Unwatch">
             x
           </a>
@@ -72,6 +123,9 @@
       </ul>
 
     </div>
+
+    <div id="map-canvas" style="width: 400px; height: 400px;"></div>
+
   </body>
 </html>
 

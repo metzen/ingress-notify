@@ -65,6 +65,7 @@ function PortalsCtrl($scope, $http, $filter) {
   $scope.suggestedPortals = [];
   $scope.selectedIndex = -1;
   var unwatchedPortals = null;
+  var markers = [];
 
   $http.get('/portals?watched=true').success(function(data, status, headers, config) {
     $scope.watchedPortals = {};
@@ -72,6 +73,14 @@ function PortalsCtrl($scope, $http, $filter) {
       portal = new Portal(
           portal.title, portal.latE6, portal.lngE6, portal.address,
           true, $http);
+      markers[portal] = new google.maps.Marker({
+          animation: google.maps.Animation.DROP,
+          position: new google.maps.LatLng(
+              portal.latE6 / 1E6,
+              portal.lngE6 / 1E6),
+          map: map,
+          title: portal.title
+      });
       $scope.watchedPortals[portal] = portal;
     });
 
@@ -173,5 +182,20 @@ function PortalsCtrl($scope, $http, $filter) {
     if ($scope.selectedIndex == -1) return;
     $scope.populateFromSuggestion($scope.suggestedPortals[$scope.selectedIndex]);
     event.preventDefault();
+  };
+
+  $scope.handleMouseover = function(event, portal) {
+    if (event.target.nodeName != 'LI') return;
+    markers[portal].setAnimation(google.maps.Animation.BOUNCE);
+  };
+
+  $scope.handleMouseout = function(event, portal) {
+    // TODO: Do this cleaner.
+    if (event.target.nodeName != 'LI') return;
+    var nodes = event.target.getElementsByTagName('*')
+    for (var i = 0, node; node = nodes[i]; i++) {
+      if (event.relatedTarget == node) return;
+    }
+    markers[portal].setAnimation(null);
   };
 }
