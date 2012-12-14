@@ -66,6 +66,7 @@ function PortalsCtrl($scope, $http, $filter) {
   $scope.selectedIndex = -1;
   var unwatchedPortals = null;
   var markers = [];
+  var bounds = new google.maps.LatLngBounds();
 
   $http.get('/portals?watched=true').success(function(data, status, headers, config) {
     $scope.watchedPortals = {};
@@ -73,16 +74,19 @@ function PortalsCtrl($scope, $http, $filter) {
       portal = new Portal(
           portal.title, portal.latE6, portal.lngE6, portal.address,
           true, $http);
+      var latLng = new google.maps.LatLng(
+              portal.latE6 / 1E6,
+              portal.lngE6 / 1E6);
+      bounds.extend(latLng);
       markers[portal] = new google.maps.Marker({
           animation: google.maps.Animation.DROP,
-          position: new google.maps.LatLng(
-              portal.latE6 / 1E6,
-              portal.lngE6 / 1E6),
+          position: latLng,
           map: map,
           title: portal.title
       });
       $scope.watchedPortals[portal] = portal;
     });
+    map.fitBounds(bounds);
 
     $http.get('/portals').success(function(data, status, headers, config) {
       unwatchedPortals = {};
