@@ -7,10 +7,10 @@ function NOTIFY_watch(title, latE6, lngE6, watched) {
 }
 
 
-var ORIG_xd = xd;
-xd = function(a, b) {
+var ORIG_yd = yd;
+yd = function(a, b) {
   var node = document.createElement('div');
-  node.innerHTML = ORIG_xd(a, b);
+  node.innerHTML = ORIG_yd(a, b);
 
   // TODO: Do this cleaner.
   var elements = node.getElementsByTagName('div');
