@@ -22,7 +22,7 @@ class Handler(mail_handlers.InboundMailHandler):
   """Incoming mail handler."""
 
   def receive(self, mail_message):
-    if 'Gmail Forwarding Confirmation' in mail_message.subject:
+    if 'Forwarding Confirmation' in mail_message.subject:
       logging.info('Received Gmail forwarding request')
       for _content_type, body in mail_message.bodies('text/plain'):
         decoded_body = body.decode()
