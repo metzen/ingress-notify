@@ -131,5 +131,5 @@ class PortalHandler(BaseHandler):
 
 APP = webapp2.WSGIApplication([
     (r'/portals', PortalsHandler),
-    (r'/portals/(\d+),(-?\d+)', PortalHandler),
+    (r'/portals/(-?\d+),(-?\d+)', PortalHandler),
 ])
