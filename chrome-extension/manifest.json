@@ -1,16 +1,24 @@
 {
   "name": "Ingress Notifier",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "manifest_version": 2,
   "description": "Extended notification functionality for Ingress.",
   "browser_action": {
-    "default_icon": "icon.png",
+    "default_icon": {
+      "19": "icon19.png",
+      "38": "icon38.png"
+    },
 	  "default_popup": "popup.html"
   },
   "permissions": [
     "tabs",
     "https://ingress-notify.appspot.com/*"
   ],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
   "content_scripts": [
     {
       "matches": ["http://www.ingress.com/intel*"],
