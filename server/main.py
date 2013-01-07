@@ -12,6 +12,7 @@ from google.appengine.api import xmpp
 from google.appengine.ext import db
 import webapp2
 
+import memcache_chunker
 import models
 import util
 
@@ -86,12 +87,12 @@ class PortalsHandler(BaseHandler):
         memcache.set(key, portals_json)
     else:
       key = 'portals'
-      portals_json = memcache.get(key)
+      portals_json = memcache_chunker.get(key)
       if not portals_json:
         logging.info('Pulling portals from datastore')
         portals_json = json.dumps(
             portals_query.run(batch_size=1000), cls=PortalJSONEncoder)
-        memcache.set(key, portals_json)
+        memcache_chunker.set(key, portals_json)
     self.response.out.write(")]}',\n" + portals_json)
 
 
@@ -106,11 +107,12 @@ class PortalHandler(BaseHandler):
     portal, created = models.Portal.get_or_insert(added_by=self.user, **kwargs)
     if created:
       # Add it to the cached JSON list of all portals.
-      portals_json = memcache.get('portals')
+      portals_json = memcache_chunker.get('portals')
       if portals_json is not None:
         portals = json.loads(portals_json)
         portals.append(portal)
-        memcache.set('portals', json.dumps(portals, cls=PortalJSONEncoder))
+        memcache_chunker.set('portals', json.dumps(
+            portals, cls=PortalJSONEncoder))
     if kwargs.get('watched'):
       xmpp.send_invite(self.user.email)
       if self.user.key() not in portal.subscribers:
