@@ -11,7 +11,6 @@ import webapp2
 
 import models
 
-REQUESTER_RE = re.compile('(.*?) has requested')
 CONFIRMATION_RE = re.compile(r'(http.*%40ingress-notify\.appspotmail\.com.*)')
 LATITUDE_RE = re.compile(r'latE6=(-?\d+)')
 LONGITUDE_RE = re.compile(r'lngE6=(-?\d+)')
@@ -22,17 +21,17 @@ class Handler(mail_handlers.InboundMailHandler):
   """Incoming mail handler."""
 
   def receive(self, mail_message):
-    if 'Forwarding Confirmation' in mail_message.subject:
+    logging.debug('Received mail from: %s', mail_message.sender)
+    logging.debug('Subject: %s', mail_message.subject)
+    if 'mail-noreply@google.com' in mail_message.sender:
       logging.info('Received Gmail forwarding request')
       for _content_type, body in mail_message.bodies('text/plain'):
         decoded_body = body.decode()
         logging.debug(
             'Gmail forwarding confirmation mail body:\n' + decoded_body)
-        match = REQUESTER_RE.search(decoded_body)
-        requester = match.group(1)
-        logging.info("Registering '%s'", requester)
         match = CONFIRMATION_RE.search(decoded_body)
         urllib2.urlopen(match.group(0))
+        logging.info('Forwarding request confirmed')
     else:
       logging.info('Received Ingress notification mail')
 
