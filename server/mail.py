@@ -32,7 +32,7 @@ class Handler(mail_handlers.InboundMailHandler):
         match = CONFIRMATION_RE.search(decoded_body)
         urllib2.urlopen(match.group(0))
         logging.info('Forwarding request confirmed')
-    else:
+    elif 'ingress-support@google.com' in mail_message.sender:
       logging.info('Received Ingress notification mail')
 
       for _content_type, body in mail_message.bodies('text/html'):
@@ -53,6 +53,8 @@ class Handler(mail_handlers.InboundMailHandler):
             logging.info('Portal has subscribers; sending alerts')
             users = models.User.get(portal.subscribers)
             send_message(users, portal, url)
+    else:
+      logging.info('Received non-interesting mail')
 
 
 def send_message(users, portal, url):
