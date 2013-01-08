@@ -15,6 +15,7 @@ CONFIRMATION_RE = re.compile(r'(http.*%40ingress-notify\.appspotmail\.com.*)')
 LATITUDE_RE = re.compile(r'latE6=(-?\d+)')
 LONGITUDE_RE = re.compile(r'lngE6=(-?\d+)')
 PORTAL_URL_RE = re.compile(r'"(http://www.ingress.com/intel.*?)"')
+ATTACKER_RE = re.compile(r'destroyed by (\w+) ')
 
 
 class Handler(mail_handlers.InboundMailHandler):
@@ -42,6 +43,7 @@ class Handler(mail_handlers.InboundMailHandler):
           url = PORTAL_URL_RE.search(decoded_body).group(1)
           lat = int(LATITUDE_RE.search(decoded_body).group(1))
           lng = int(LONGITUDE_RE.search(decoded_body).group(1))
+          attacker = ATTACKER_RE.search(decoded_body).group(1)
         except AttributeError:
           logging.error('Failed to parse notification mail')
         else:
@@ -52,18 +54,18 @@ class Handler(mail_handlers.InboundMailHandler):
           elif portal.subscribers:
             logging.info('Portal has subscribers; sending alerts')
             users = models.User.get(portal.subscribers)
-            send_message(users, portal, url)
+            send_message(users, portal, url, attacker)
     else:
       logging.info('Received non-interesting mail')
 
 
-def send_message(users, portal, url):
+def send_message(users, portal, url, attacker):
   portal_keyname = portal.key().name()
   emails = [
       user.email for user in users
       if memcache.add('%s|||%s' % (portal_keyname, user.email), 1, time=120)]
   if emails:
-    msg = 'Alert! *%s* (%s) is under attack! %s' % (portal.title, portal.address, url)
+    msg = 'Alert! *%s* (%s) is under attack by %s! %s' % (portal.title, portal.address, attacker, url)
     xmpp.send_message(emails, msg)
 
 
