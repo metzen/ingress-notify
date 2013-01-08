@@ -34,6 +34,10 @@ li {
   position: relative;
 }
 
+.portal:hover {
+  background-color: #004F4A;
+}
+
 .unwatch {
   position: absolute;
   right: 3px;
