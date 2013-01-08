@@ -22,7 +22,7 @@ class Handler(mail_handlers.InboundMailHandler):
 
   def receive(self, mail_message):
     logging.debug('Received mail from: %s', mail_message.sender)
-    logging.debug('Subject: %s', mail_message.subject)
+    logging.debug('Subject: %s', getattr(mail_message, 'subject', ''))
     if 'mail-noreply@google.com' in mail_message.sender:
       logging.info('Received Gmail forwarding request')
       for _content_type, body in mail_message.bodies('text/plain'):
