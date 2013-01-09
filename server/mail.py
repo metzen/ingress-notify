@@ -67,8 +67,8 @@ def send_message(users, portal, url, attacker):
       if memcache.add('%s|||%s' % (portal_keyname, user.email), 1, time=120)]
   if emails:
     msg = 'Alert! *%s* (%s) is under attack%s! %s' % (
-        portal.title, portal.address, (' by ' + attacker) if attacker else '',
-        url)
+        portal.title.strip(), portal.address,
+        (' by ' + attacker) if attacker else '', url)
     xmpp.send_message(emails, msg)
 
 
