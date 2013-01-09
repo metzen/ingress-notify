@@ -47,6 +47,9 @@ class BaseHandler(webapp2.RequestHandler):
       try:
         user = oauth.get_current_user()
         logging.debug('User authenticated via OAuth token: ' + user.email())
+      except oauth.InvalidOAuthTokenError:
+        logging.info('User provided an invalid OAuth token')
+        self.abort(401, explanation='Invalid OAuth token')
       except oauth.InvalidOAuthParametersError:
         pass
     if not user:
