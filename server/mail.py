@@ -43,7 +43,8 @@ class Handler(mail_handlers.InboundMailHandler):
           url = PORTAL_URL_RE.search(decoded_body).group(1)
           lat = int(LATITUDE_RE.search(decoded_body).group(1))
           lng = int(LONGITUDE_RE.search(decoded_body).group(1))
-          attacker = ATTACKER_RE.search(decoded_body).group(1)
+          m = ATTACKER_RE.search(decoded_body)
+          attacker = m.group(1) if m else None
         except AttributeError:
           logging.error('Failed to parse notification mail')
         else:
@@ -65,7 +66,9 @@ def send_message(users, portal, url, attacker):
       user.email for user in users
       if memcache.add('%s|||%s' % (portal_keyname, user.email), 1, time=120)]
   if emails:
-    msg = 'Alert! *%s* (%s) is under attack by %s! %s' % (portal.title, portal.address, attacker, url)
+    msg = 'Alert! *%s* (%s) is under attack%s! %s' % (
+        portal.title, portal.address, (' by ' + attacker) if attacker else '',
+        url)
     xmpp.send_message(emails, msg)
 
 
