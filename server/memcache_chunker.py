@@ -9,13 +9,15 @@ def set(key, value, chunksize=950000):
   serialized = pickle.dumps(value, 2)
   values = {}
   for i in xrange(0, len(serialized), chunksize):
-    values['%s.%s' % (key, i // chunksize)] = serialized[i:i + chunksize]
-  memcache.set_multi(values)
+    values['%s' % (i // chunksize)] = serialized[i:i + chunksize]
+  memcache.set_multi(values, key_prefix=key + '.')
 
 
 def get(key):
-  result = memcache.get_multi(['%s.%s' % (key, i) for i in xrange(32)])
-  serialized = ''.join([v for v in result.values() if v is not None])
+  keys = [str(i) for i in xrange(32)]
+  result = memcache.get_multi(keys, key_prefix=key + '.')
+  result_values = [result.get(k) for k in keys]
+  serialized = ''.join([v for v in result_values if v is not None])
   try:
     return pickle.loads(serialized)
   except:  # TODO: Use a more specific exception type.
